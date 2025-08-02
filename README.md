@@ -1,149 +1,200 @@
-# YouTube MP3 Синхронизатор
+# YouTube MP3 SMB Synchronizer
 
-Приложение для автоматической загрузки MP3 файлов из YouTube плейлиста и размещения их на SMB сетевом диске.
+🎵 **Automatic YouTube playlist to SMB network drive synchronizer with M3U playlist support**
 
-## Особенности
+A Python-based tool that automatically downloads MP3 files from YouTube playlists, uploads them to SMB network shares, and creates M3U playlists for easy music management.
 
-- ✅ Загрузка MP3 из YouTube плейлиста
-- ✅ Отслеживание уже загруженных файлов (избегает повторных загрузок)
-- ✅ Автоматическая загрузка на SMB сетевой диск
-- ✅ Автоматическое создание M3U плейлистов на SMB сервере
-- ✅ Поддержка множественных плейлистов с индивидуальными настройками SMB
-- ✅ Проверка целостности файлов через MD5 хеши
-- ✅ Чанковая загрузка больших файлов
-- ✅ Автоматическое удаление временных файлов
-- ✅ Чистая архитектура с соблюдением принципов ООП, SOLID и DRY
-- ✅ Подробное логирование процесса
-- ✅ Обработка ошибок и восстановление
+## ✨ Features
 
-## Требования
+- ✅ **YouTube MP3 Download**: Extract MP3 audio from YouTube playlists using yt-dlp + FFmpeg
+- ✅ **SMB Network Upload**: Automatically upload files to SMB/CIFS network drives
+- ✅ **M3U Playlist Generation**: Create M3U playlists on SMB server for easy music player integration
+- ✅ **Multiple Playlists Support**: Configure multiple YouTube playlists with individual SMB destinations
+- ✅ **Download Tracking**: Avoid re-downloading already processed videos
+- ✅ **File Integrity Verification**: MD5 hash verification ensures complete file transfers
+- ✅ **Chunked Upload**: Handle large files with SMB protocol limitations
+- ✅ **Automatic Cleanup**: Remove temporary files after successful upload
+- ✅ **Clean Architecture**: Built with OOP, SOLID, and DRY principles
 
-- Python 3.11+
-- FFmpeg (для конвертации аудио)
-- Доступ к SMB серверу
+## 🚀 Quick Start
 
-## Установка
+### 1. Prerequisites
 
-1. **Клонируйте или скачайте проект**
+- **Python 3.11+** installed on your system
+- **Windows OS** (tested on Windows 10/11)
+- **SMB network access** to your target server/NAS
+- **Internet connection** for YouTube access
 
-2. **Создайте виртуальное окружение:**
+### 2. Installation
+
+1. **Clone the repository:**
    ```bash
-   python -m venv venv
+   git clone https://github.com/Tur1du/youtube_mp3_smb.git
+   cd youtube_mp3_smb
    ```
 
-3. **Активируйте виртуальное окружение:**
-   
-   Windows:
+2. **Run the setup script:**
    ```bash
-   venv\Scripts\activate
+   setup.bat
    ```
-   
-   Linux/Mac:
+   This will:
+   - Create a Python virtual environment
+   - Install all required dependencies
+   - Check for FFmpeg and install if needed
+   - Create necessary directories
+
+### 3. Configuration
+
+1. **Create environment file:**
    ```bash
-   source venv/bin/activate
+   copy .env.example .env
    ```
 
-4. **Установите зависимости:**
-   ```bash
-   pip install -r requirements.txt
+2. **Edit `.env` file** with your SMB credentials:
+   ```env
+   SMB_USERNAME_MYCLOUDEX2ULTRA=your_username
+   SMB_PASSWORD_MYCLOUDEX2ULTRA=your_password
    ```
 
-5. **Установите FFmpeg:**
-   - Windows: Скачайте с https://ffmpeg.org/download.html и добавьте в PATH
-   - Linux: `sudo apt install ffmpeg`
-   - Mac: `brew install ffmpeg`
+3. **Edit `config.py`** to configure your playlists:
+   ```python
+   PLAYLISTS_CONFIG = [
+       {
+           "url": "https://www.youtube.com/playlist?list=YOUR_PLAYLIST_ID",
+           "folder": "Music/YourFolder",
+           "description": "Your playlist description",
+           "playlist": "YourPlaylist.m3u",  # Optional M3U file
+           "smb_config": {
+               "server": "YOUR_SMB_SERVER",
+               "share": "your_share",
+               "username": os.getenv("SMB_USERNAME_YOUR_SERVER", "admin"),
+               "password": os.getenv("SMB_PASSWORD_YOUR_SERVER", ""),
+               "domain": ""
+           }
+       }
+   ]
+   ```
 
-## Настройка
-
-Откройте файл `config.py` и заполните параметры SMB подключения:
-
-```python
-# Настройки SMB (обязательно заполнить!)
-SMB_SERVER = "192.168.1.100"  # IP адрес вашего SMB сервера
-SMB_SHARE = "music"           # Имя SMB шары
-SMB_USERNAME = "your_username"
-SMB_PASSWORD = "your_password"
-SMB_DOMAIN = ""               # Домен (если требуется)
-```
-
-## Использование
-
-Запустите приложение:
+### 4. Run the Synchronizer
 
 ```bash
-python main.py
+run.bat
 ```
 
-Приложение автоматически:
-1. Получит список видео из плейлиста
-2. Проверит, какие файлы уже загружены
-3. Загрузит новые MP3 файлы
-4. Загрузит их на SMB сервер
-5. Обновит список загруженных файлов
+The tool will:
+- Extract videos from your YouTube playlists
+- Download MP3 audio files
+- Upload them to your SMB network drive
+- Create M3U playlists
+- Clean up temporary files
 
-## Структура проекта
+## 📁 Project Structure
 
 ```
-├── main.py                 # Главный файл приложения
-├── config.py              # Конфигурация
-├── interfaces.py          # Абстрактные интерфейсы
-├── youtube_mp3_sync.py    # Основной класс синхронизатора
-├── logger.py              # Система логирования
-├── download_tracker.py    # Отслеживание загруженных файлов
-├── playlist_extractor.py  # Извлечение плейлиста YouTube
-├── audio_downloader.py    # Загрузка аудио
-├── smb_uploader.py        # Загрузка на SMB сервер
-├── requirements.txt       # Зависимости Python
-├── downloaded.json        # База загруженных файлов (создается автоматически)
-└── temp_downloads/        # Временная папка (создается автоматически)
+youtube_mp3_smb/
+├── main.py                 # Application entry point
+├── config.py              # Configuration settings
+├── youtube_mp3_sync.py    # Main synchronizer class
+├── audio_downloader.py    # YouTube audio extraction
+├── smb_uploader.py        # SMB file upload handler
+├── m3u_manager.py         # M3U playlist generator
+├── playlist_extractor.py  # YouTube playlist parser
+├── download_tracker.py    # Download history tracking
+├── interfaces.py          # Abstract interfaces
+├── logger.py              # Logging utilities
+├── requirements.txt       # Python dependencies
+├── setup.bat             # Setup script
+├── run.bat               # Run script
+├── .env.example          # Environment template
+└── README.md             # This file
 ```
 
-## Архитектура
+## ⚙️ Configuration Details
 
-Проект построен с соблюдением принципов SOLID:
+### SMB Configuration
 
-- **Single Responsibility**: Каждый класс отвечает за одну задачу
-- **Open/Closed**: Легко расширяется новыми реализациями интерфейсов
-- **Liskov Substitution**: Все реализации взаимозаменяемы
-- **Interface Segregation**: Интерфейсы разделены по функциональности
-- **Dependency Inversion**: Зависимости внедряются через конструкторы
+Each playlist can have its own SMB server configuration:
 
-## Логирование
+```python
+"smb_config": {
+    "server": "192.168.1.100",    # SMB server IP or hostname
+    "share": "music",             # SMB share name
+    "username": os.getenv("SMB_USERNAME_SERVER", "user"),
+    "password": os.getenv("SMB_PASSWORD_SERVER", ""),
+    "domain": ""                  # Windows domain (usually empty)
+}
+```
 
-Все операции логируются в консоль с указанием времени и уровня сообщения:
-- `INFO`: Обычные операции
-- `WARNING`: Предупреждения
-- `ERROR`: Ошибки
+### Environment Variables
 
-## Обработка ошибок
+Add SMB credentials to `.env` file:
 
-- Автоматическое восстановление после сетевых ошибок
-- Пропуск поврежденных видео
-- Очистка временных файлов
-- Безопасное отключение от SMB сервера
+```env
+# Format: SMB_USERNAME_<SERVER_NAME>=username
+SMB_USERNAME_MYCLOUDEX2ULTRA=admin
+SMB_PASSWORD_MYCLOUDEX2ULTRA=your_secure_password
 
-## Файлы
+# Add more servers as needed
+SMB_USERNAME_ANOTHER_SERVER=user
+SMB_PASSWORD_ANOTHER_SERVER=another_password
+```
 
-- `downloaded.json`: Содержит список уже загруженных видео с метаданными
-- `temp_downloads/`: Временная папка для загрузки MP3 (автоматически очищается)
+### YouTube Playlist URLs
 
-## Устранение неполадок
+Get playlist URLs from YouTube:
+1. Go to your YouTube playlist
+2. Copy the URL (format: `https://www.youtube.com/playlist?list=PLAYLIST_ID`)
+3. Add to `config.py`
 
-### Ошибка "FFmpeg not found"
-Установите FFmpeg и убедитесь, что он доступен в PATH.
+## 🔧 Troubleshooting
 
-### Ошибка подключения к SMB
-Проверьте:
-- Правильность IP адреса сервера
-- Доступность SMB сервера в сети
-- Корректность имени пользователя и пароля
-- Права доступа к указанной шаре
+### FFmpeg Not Found
+The setup script will automatically download and install FFmpeg. If you encounter issues:
+1. Download FFmpeg from https://ffmpeg.org/download.html
+2. Extract to a folder
+3. Add the folder to your system PATH
 
-### Ошибка загрузки YouTube
-- Проверьте интернет-соединение
-- Убедитесь, что плейлист публичный
-- Попробуйте обновить yt-dlp: `pip install --upgrade yt-dlp`
+### SMB Connection Issues
+- Verify SMB server is accessible: `\\server_ip\share_name`
+- Check username/password in `.env` file
+- Ensure SMB/CIFS is enabled on target server
+- Try connecting manually through Windows Explorer first
 
-## Лицензия
+### YouTube Download Errors
+- Check internet connection
+- Verify playlist is public or accessible
+- Some videos may be region-restricted or unavailable
 
-Этот проект предназначен для личного использования. Убедитесь, что соблюдаете авторские права при загрузке контента.
+### Permission Errors
+- Run as Administrator if needed
+- Check SMB share permissions
+- Verify write access to target folders
+
+## 📝 Logs
+
+The application creates detailed logs showing:
+- YouTube playlist extraction
+- MP3 download progress
+- SMB upload status
+- M3U playlist creation
+- Error messages and troubleshooting info
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Test thoroughly
+5. Submit a pull request
+
+## 📄 License
+
+This project is open source. Feel free to use and modify as needed.
+
+## 🆘 Support
+
+If you encounter issues:
+1. Check the troubleshooting section
+2. Review the logs for error messages
+3. Ensure all prerequisites are met
+4. Verify your configuration files

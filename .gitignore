@@ -135,6 +135,9 @@ temp_downloads/
 *.sqlite
 *.db
 test_smb_files.py
+ffmpeg/
+ffmpeg.zip
+ffmpeg_temp/
 
 # IDE
 .vscode/
